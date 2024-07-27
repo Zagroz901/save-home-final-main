@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import WebSocketService from './WebsocketService';
-import './App.css';
+import './App.css'; 
 
-const WebSocketVideoStream = ({ useLSTM }) => {
+const WebSocketVideoStream = () => {
   const videoRef = useRef(null);
   const rawCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
@@ -27,18 +27,10 @@ const WebSocketVideoStream = ({ useLSTM }) => {
   };
 
   const handleMessage = (data) => {
-    if (typeof data === 'string') {
-      try {
-        const parsedData = JSON.parse(data);
-        if (parsedData.type === 'ack') {
-          console.log('Frame acknowledged by server.');
-        }
-      } catch (e) {
-        console.error('Failed to parse JSON data:', e);
-      }
+    if (data === '{"type": "ping"}') {
+      console.log('Ping received from server.');
       return;
     }
-
     console.log('Processed frame received from server.');
     const blob = new Blob([data], { type: 'image/jpeg' });
     const url = URL.createObjectURL(blob);
@@ -117,7 +109,6 @@ const WebSocketVideoStream = ({ useLSTM }) => {
           blob.arrayBuffer().then((buffer) => {
             console.log('Sending video frame to server...');
             if (websocketService && websocketService.websocket.readyState === WebSocket.OPEN) {
-              websocketService.send(JSON.stringify({ useLSTM }));
               websocketService.send(buffer);
             }
           });
@@ -132,11 +123,16 @@ const WebSocketVideoStream = ({ useLSTM }) => {
   };
 
   return (
-    <div className="video-container">
+    <div>
+      <div className="monitor-header">WebSocket Video Stream</div>
       <input type="file" accept="video/*" onChange={handleFileChange} className="file-input" />
-      <canvas ref={processedCanvasRef} className="video-canvas" />
-      <canvas ref={rawCanvasRef} style={{ display: 'none' }} />
-      <video ref={videoRef} style={{ display: 'none' }} />
+      <div className="monitor-container">
+        <div className="monitor-frame">
+          <canvas ref={processedCanvasRef} />
+          <canvas ref={rawCanvasRef} style={{ display: 'none' }} />
+          <video ref={videoRef} style={{ display: 'none' }} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import WebSocketService from './WebsocketService';
 import './App.css';
 
-const WebSocketVideoStream = ({ useLSTM }) => {
+const WebSocketVideoStream = () => {
   const videoRef = useRef(null);
   const rawCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
   const [websocketService, setWebSocketService] = useState(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [useLSTM, setUseLSTM] = useState(false);
 
   const reconnectInterval = 5000;
 
@@ -117,7 +118,9 @@ const WebSocketVideoStream = ({ useLSTM }) => {
           blob.arrayBuffer().then((buffer) => {
             console.log('Sending video frame to server...');
             if (websocketService && websocketService.websocket.readyState === WebSocket.OPEN) {
+              // First, send JSON control data
               websocketService.send(JSON.stringify({ useLSTM }));
+              // Then, send the binary frame data
               websocketService.send(buffer);
             }
           });
@@ -131,12 +134,28 @@ const WebSocketVideoStream = ({ useLSTM }) => {
     step();
   };
 
+  const toggleLSTM = () => {
+    setUseLSTM(!useLSTM);
+  };
+
   return (
-    <div className="video-container">
+    <div>
+      <div className="monitor-header">WebSocket Video Stream</div>
+      <input
+        type="checkbox"
+        checked={useLSTM}
+        onChange={toggleLSTM}
+        className="lstm-checkbox"
+      />
+      <label>Enable Violence Detection (LSTM)</label>
       <input type="file" accept="video/*" onChange={handleFileChange} className="file-input" />
-      <canvas ref={processedCanvasRef} className="video-canvas" />
-      <canvas ref={rawCanvasRef} style={{ display: 'none' }} />
-      <video ref={videoRef} style={{ display: 'none' }} />
+      <div className="monitor-container">
+        <div className="monitor-frame">
+          <canvas ref={processedCanvasRef} />
+          <canvas ref={rawCanvasRef} style={{ display: 'none' }} />
+          <video ref={videoRef} style={{ display: 'none' }} />
+        </div>
+      </div>
     </div>
   );
 };
