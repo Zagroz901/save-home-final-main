@@ -27,11 +27,18 @@ const WebSocketVideoStream = ({ useLSTM, detectBreak }) => {
   }, []);
 
   useEffect(() => {
-    // Ensure the function only runs when both conditions are true
-    if (videoFile && detectBreak) {
+    // Only run this effect if detectBreak is true and there is a videoFile
+    if (detectBreak && videoFile) {
       captureAndDisplayFirstFrame();
     }
-  }, [videoFile, detectBreak]);  // Continue to listen to changes on both variables
+  }, [videoFile, detectBreak]);  // Dependency array includes detectBreak and videoFile
+
+  useEffect(() => {
+    // This effect handles the visibility of the first frame
+    if (!detectBreak) {
+      setFirstFrameUrl(null);  // Clear the first frame display when detectBreak is false
+    }
+  }, [detectBreak]);  // Dependency only on detectBreak
   
   
 
@@ -104,20 +111,19 @@ const WebSocketVideoStream = ({ useLSTM, detectBreak }) => {
     const video = videoRef.current;
     if (video) {
       video.src = URL.createObjectURL(videoFile);
-      video.onloadedmetadata = () => {  // Ensures the video metadata is loaded
-        video.currentTime = 0;  // Go to the first frame
-        video.onseeked = () => {  // Executes after seeking to the first frame
+      video.onloadedmetadata = () => {
+        video.currentTime = 0;  // Seek to the first frame
+        video.onseeked = () => {
           const canvas = rawCanvasRef.current;
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           const context = canvas.getContext('2d');
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
           const url = canvas.toDataURL('image/jpeg');
-          setFirstFrameUrl(url);  // Store the URL of the first frame's image to display it
-          setIsProcessing(false);
+          setFirstFrameUrl(url);  // Update state to show first frame
         };
       };
-      video.load(); // Required to reload the new video source set above
+      video.load();  // Load the video to trigger onloadedmetadata
     }
   };
   
