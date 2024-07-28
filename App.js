@@ -1,46 +1,38 @@
-// import './App.css';
-
-// import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-
-// import { Login } from './Componants/Login/Login';
-// import { Signup } from './Componants/SignUp/Signup';
-// import VideoStream from './WebSocketVideoStream';
-
-// function App() {
-//   return (
-//     // <Router>
-//     //   <Routes>
-//     //     <Route path='/' element={<Login/>}/>
-//     //     <Route path='/signup' element={<Signup/>}/>
-//     //   </Routes>
-//     // </Router>
-//     <div className="App">
-//     <h1>WebSocket Video Stream</h1>
-//     <VideoStream />
-//   </div>
-//   );
-// }
-
-// export default App;
-
-// src/components/App.js
 import React, { useState } from 'react';
 import './App.css';
 import WebSocketVideoStream from './WebSocketVideoStream';
 
 function App() {
+  const [useLSTM, setUseLSTM] = useState(false);
+  const [anotherFeature, setAnotherFeature] = useState(false);
+
   return (
-    <div>
+    <div className="app-container">
       <div className="header">
         <h1>Surveillance System</h1>
       </div>
-      <div className="main-container">
+      <div className="content">
         <div className="sidebar">
           <h2>Controls</h2>
-          {/* Add more controls if necessary */}
+          <div className="control-item">
+            <input
+              type="checkbox"
+              checked={useLSTM}
+              onChange={() => setUseLSTM(!useLSTM)}
+            />
+            <label>Enable Violence Detection (LSTM)</label>
+          </div>
+          <div className="control-item">
+            <input
+              type="checkbox"
+              checked={anotherFeature}
+              onChange={() => setAnotherFeature(!anotherFeature)}
+            />
+            <label>Another Feature</label>
+          </div>
         </div>
-        <div className="camera-grid">
-          <WebSocketVideoStream />
+        <div className="main-container">
+          <WebSocketVideoStream useLSTM={useLSTM} />
         </div>
       </div>
       <div className="footer">

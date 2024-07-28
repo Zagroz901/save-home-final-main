@@ -1,3 +1,4 @@
+// WebSocketService.js
 export default class WebSocketService {
   constructor(url, reconnectInterval = 5000) {
     this.url = url;
