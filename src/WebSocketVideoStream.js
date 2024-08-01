@@ -114,7 +114,7 @@ const WebSocketVideoStream = ({ useLSTM, detectBreak }) => {
       video.onloadedmetadata = () => {
         video.currentTime = 0;  // Seek to the first frame
         video.onseeked = () => {
-          const canvas = rawCanvasRef.current;
+          const canvas = processedCanvasRef.current;
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           const context = canvas.getContext('2d');
@@ -143,7 +143,7 @@ const WebSocketVideoStream = ({ useLSTM, detectBreak }) => {
   };
 
   const processFrames = (video) => {
-    const canvas = processedCanvasRef.current; // Use processedCanvasRef to display frames
+    const canvas = rawCanvasRef.current; // Use processedCanvasRef to display frames
     const context = canvas.getContext('2d');
     let frameCount = 0;
     const fps = 10; // Frames per second, adjust as necessary for performance
@@ -187,7 +187,7 @@ const WebSocketVideoStream = ({ useLSTM, detectBreak }) => {
       <button onClick={processAndSendVideo} className="send-video-button">
         Send Video to Server
       </button>
-      <canvas ref={processedCanvasRef} className="video-canvas" style={{ display: 'block' }} />
+      <canvas ref={processedCanvasRef} style={{ display:"block" }} />
       <canvas ref={rawCanvasRef} style={{ display: 'none' }} />
       <video ref={videoRef} style={{ display: 'none' }} />
     </div>
